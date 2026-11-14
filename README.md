@@ -1,31 +1,88 @@
-# Sophona — integracja Allegro Sandbox
+# Base w Sophonie — panel sprzedaży i integracja Allegro Sandbox
 
-## Przeznaczenie
+Publiczna dokumentacja prywatnej aplikacji Base rozwijanej i uruchamianej na platformie Sophona. Repozytorium opisuje przeznaczenie aplikacji, jej moduły oraz zakres prac nad integracją Allegro. Nie jest repozytorium kodu źródłowego panelu.
 
-Prywatna aplikacja testowa do integracji panelu Base w Sophonie z własnym kontem Allegro Sandbox. Projekt jest przeznaczony wyłącznie do użytku własnego. Nie jest usługą dla innych sprzedawców ani oficjalnym produktem Allegro.
+Kontakt: **biuro@parts4you.pl**
 
-## Status
+## Przeznaczenie i odbiorcy
 
-Wersja dokumentacyjna: 1.0. Stan na 14 listopada 2026 r.: integracja w trakcie konfiguracji i testów. Pełny przebieg autoryzacji i operacji API nie został jeszcze potwierdzony testem end-to-end. Publikacja tej dokumentacji nie oznacza gotowości produkcyjnej.
+Base jest panelem do obsługi własnej sprzedaży, katalogu produktów, magazynu i zamówień. Aplikacja jest przeznaczona do użytku własnego, z rozróżnieniem dostępu administratora i pracownika. Nie jest obecnie usługą oferowaną innym sprzedawcom.
 
-## Zakres prac
+Integracja marketplace jest rozwijana z myślą o własnym koncie Allegro. Na obecnym etapie konfiguracja i testy dotyczą Allegro Sandbox. Projekt nie jest oficjalnym produktem Allegro ani deklaracją certyfikacji integratora.
 
-Przygotowano kod konfiguracji połączenia OAuth, importu ofert i przypisywania ofert do produktów Base. Funkcje te wymagają dalszej weryfikacji z kontem testowym.
+## Moduły panelu
 
-Planowany zakres obejmuje odczyt ofert, synchronizację cen i stanów magazynowych, import zamówień oraz aktualizację statusu ich realizacji. Nie wszystkie wymienione funkcje zostały wdrożone lub przetestowane.
+Poniższa tabela opisuje zakres funkcjonalny projektu. Nie stanowi potwierdzenia zakończenia testów każdej funkcji.
 
-## Autoryzacja i środowisko
+| Moduł | Zakres |
+| --- | --- |
+| Produkty | Katalog produktów, warianty i identyfikatory SKU |
+| Magazyn | Stany magazynowe i rezerwacje |
+| Zamówienia | Obsługa zamówień, statusy, notatki i historia zmian |
+| Klienci | Ewidencja klientów związanych ze sprzedażą |
+| Oferty wewnętrzne | Obsługa ofert w panelu, odrębna od ofert Allegro |
+| Cenniki | Ceny i reguły cenowe |
+| Raporty i dziennik | Raportowanie oraz rejestrowanie zdarzeń |
+| Użytkownicy | Role i ograniczenia uprawnień administratora oraz pracownika |
+| Marketplace | Konfiguracja połączenia Allegro i rozwijana obsługa ofert |
 
-Docelowy przebieg: użytkownik uruchamia połączenie w Base, loguje się na stronie Allegro Sandbox i udziela zgody, a backend obsługuje powrót OAuth i zapis połączenia. Testy dotyczą środowiska Sandbox, nie konta produkcyjnego.
+## Architektura
 
-## Dane i bezpieczeństwo
+- Interfejs: React 18 i Vite 5.
+- Backend: Node.js i Express.
+- Dane biznesowe: projekt przewiduje trwałą bazę SQLite obsługiwaną przez backend. localStorage nie jest bazą danych biznesowych.
+- Hosting i podgląd deweloperski: Sophona Native App.
+- Integracja z Allegro: logika wywołań API i obsługi tokenów znajduje się w backendzie, nie w publicznej dokumentacji.
 
-To repozytorium zawiera wyłącznie dokumentację. Nie zawiera kodu prywatnego panelu, Client Secret, tokenów, ciasteczek sesyjnych ani danych klientów i zamówień. Dane uwierzytelniające nie powinny być publikowane w zgłoszeniach. Przegląd bezpieczeństwa integracji pozostaje częścią prac przed ewentualnym użyciem produkcyjnym.
+Schemat docelowego przepływu:
 
-## Kontakt
+```text
+Użytkownik → interfejs Base → backend Express → baza danych
+                                      ↓
+                               Allegro Sandbox API
+```
 
-Właściciel integracji / kontakt techniczny: biuro@parts4you.pl
+## Integracja Allegro — stan prac
 
-## Strona dokumentacji
+| Obszar | Stan udokumentowany na 14 listopada 2026 |
+| --- | --- |
+| Konfiguracja połączenia | Przygotowano ekran i endpointy konfiguracji |
+| OAuth Authorization Code | Przygotowano kod rozpoczęcia autoryzacji, callbacku i obsługi tokenów; pełny test z kontem Sandbox pozostaje do wykonania |
+| Oferty Allegro | Przygotowano kod importu, listy i przypisania oferty do produktu Base; poprawność z rzeczywistymi danymi Sandbox wymaga weryfikacji |
+| Ceny i stany | Synchronizacja do Allegro pozostaje zakresem dalszych prac i testów |
+| Zamówienia Allegro | Import, ekran zamówień i obsługa realizacji pozostają kolejnymi etapami |
+| Logi integracji | Przygotowano mechanizm zapisu wybranych operacji; ekran diagnostyczny i pełna obsługa błędów wymagają dalszych prac |
+| User-Agent | Konfiguracja własnego identyfikatora jest w toku; jego wdrożenie w wywołaniach backendu nie zostało potwierdzone |
 
-Niniejszy README jest publicznym opisem integracji. Osobna strona w Sophonie jest planowana; jej adres zostanie dodany po publikacji i sprawdzeniu.
+Przygotowanie kodu nie oznacza udanego testu end-to-end. Integracja wymaga dalszych poprawek oraz przeglądu bezpieczeństwa przed ewentualnym użyciem produkcyjnym.
+
+## Docelowy sposób podłączenia konta
+
+1. Administrator konfiguruje dane aplikacji dla środowiska testowego.
+2. Użytkownik uruchamia połączenie w sekcji Marketplace.
+3. Base przekierowuje go do autoryzacji na stronie Allegro Sandbox.
+4. Po udzieleniu zgody backend obsługuje callback i zapis połączenia.
+5. Użytkownik uruchamia import ofert i przypisuje je do produktów Base.
+
+To opis zamierzonego przebiegu, nie potwierdzenie zakończonego testu. Hasła do Allegro należy podawać wyłącznie na stronie logowania Allegro, nie w dokumentacji ani zgłoszeniach.
+
+## Aktualny status i weryfikacja
+
+Stan dokumentacji: **14 listopada 2026 r.**
+
+- Podgląd deweloperski Base został uruchomiony; kontrola platformy potwierdziła serwowanie strony i jej zasobów.
+- Właściciel potwierdził, że aplikacja otwiera się po uruchomieniu podglądu.
+- Nie przeprowadzono w tej sesji pełnego testu wszystkich ekranów ani API.
+- Pełna autoryzacja i operacje Allegro Sandbox nie zostały potwierdzone testem end-to-end.
+- Aplikacja nie została wdrożona na produkcję.
+- Osobna publiczna strona dokumentacji w Sophonie nie została jeszcze opublikowana.
+
+## Bezpieczeństwo i zawartość repozytorium
+
+Repozytorium zawiera wyłącznie dokumentację. Nie publikujemy w nim kodu prywatnego panelu, kopii baz danych, danych klientów, zamówień, haseł, Client Secret, tokenów ani ciasteczek sesyjnych. Dokumentacja nie stanowi audytu bezpieczeństwa.
+
+W zgłoszeniach technicznych należy usuwać nagłówki Cookie, Set-Cookie i Authorization oraz dane osobowe. Kontakt w sprawach integracji i bezpieczeństwa: **biuro@parts4you.pl**.
+
+## Rozwój i testy
+
+Prace prowadzone są etapami: plan, implementacja, test i akceptacja przed kolejnym etapem. Priorytetem jest dokończenie oraz weryfikacja połączenia Sandbox i importu ofert. Kolejne etapy obejmują synchronizację cen i stanów, zamówienia, realizację oraz diagnostykę. Decyzja o użyciu produkcyjnym pozostaje osobnym etapem.
